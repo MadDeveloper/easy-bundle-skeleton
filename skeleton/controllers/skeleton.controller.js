@@ -27,7 +27,7 @@ class SkeletonController extends Controller {
      */
     skeletonExists( request, response ) {
         return this
-            .em
+            .getEntityManager()
             .getRepository( 'skeleton/entity/skeleton.repository', { model: 'skeleton/entity/skeleton' })
             .find( request.getRouteParameter( 'skeleton_id' ) )
             .then( skeleton => {
@@ -52,7 +52,7 @@ class SkeletonController extends Controller {
      * @param  {Response} response
      */
     getSkeletons( request, response ) {
-        this.em
+        this.getEntityManager()
             .getRepository( 'skeleton/entity/skeleton.repository', { model: 'skeleton/entity/skeleton' })
             .findAll()
             .then( skeletons => response.ok( skeletons ) )
@@ -67,9 +67,10 @@ class SkeletonController extends Controller {
      */
     createSkeleton( request, response ) {
         if ( this.isRequestWellParameterized( request ) ) {
-            const Skeleton = this.em.getModel( 'skeleton/entity/skeleton' )
+            const em = this.getEntityManager()
+            const Skeleton = em.getModel( 'skeleton/entity/skeleton' )
 
-            this.em
+            em
                 .getRepository( 'skeleton/entity/skeleton.repository', { model: Skeleton })
                 .save( new Skeleton(), request.getBody() )
                 .then( skeleton => response.created( skeleton ) )
@@ -97,7 +98,7 @@ class SkeletonController extends Controller {
      */
     updateSkeleton( request, response ) {
         if ( this.isRequestWellParameterized( request ) ) {
-            this.em
+            this.getEntityManager()
                 .getRepository( 'skeleton/entity/skeleton.repository', { model: 'skeleton/entity/skeleton' })
                 .save( request.retrieve( 'skeleton' ), request.getBody() )
                 .then( skeleton => response.ok( skeleton ) )
@@ -114,7 +115,7 @@ class SkeletonController extends Controller {
      * @param  {Response} response
      */
     deleteSkeleton( request, response ) {
-        this.em
+        this.getEntityManager()
             .getRepository( 'skeleton/entity/skeleton.repository', { model: 'skeleton/entity/skeleton' })
             .delete( request.retrieve( 'skeleton' ) )
             .then( () => response.noContent() )
