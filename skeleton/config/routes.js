@@ -1,26 +1,51 @@
-const security = require( './security' )
 const middlewares = require( './middlewares' )
 
 module.exports = {
     '/skeletons': {
-        get: 'skeleton:getSkeletons',
-        post: 'skeleton:createSkeletons',
-        security: {
-            strategy: 'default',
-            rules: security[ '/skeletons' ],
-            focus: 'role_id'
-        }
+        get: {
+            controller: 'skeleton:getSkeletons',
+            security: {
+                strategy: 'default',
+                roles: [ roles.any ]
+            }
+        },
+        post: {
+            controller: 'skeleton:createSkeletons',
+            security: {
+                strategy: 'default',
+                roles: [ roles.any ]
+            }
+        },
     },
 
     '/skeletons/:skeleton_id': {
-        get: 'skeleton:getSkeleton',
-        put: 'skeleton:updateSkeleton',
-        patch: 'skeleton:patchSkeleton',
-        delete: 'skeleton:deleteSkeleton',
-        security: {
-            strategy: 'default',
-            rules: security[ '/skeletons' ],
-            focus: 'role_id'
+        get: {
+            controller: 'skeleton:getSkeleton',
+            security: {
+                strategy: 'default',
+                roles: [ roles.any ]
+            }
+        },
+        put: {
+            controller: 'skeleton:updateSkeleton',
+            security: {
+                strategy: 'default',
+                roles: [ roles.any ]
+            }
+        },
+        patch: {
+            controller: 'skeleton:patchSkeleton',
+            security: {
+                strategy: 'default',
+                roles: [ roles.any ]
+            }
+        },
+        delete: {
+            controller: 'skeleton:deleteSkeleton',
+            security: {
+                strategy: 'default',
+                roles: [ roles.any ]
+            }
         },
         middlewares
     }

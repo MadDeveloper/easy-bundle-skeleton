@@ -1,4 +1,3 @@
-const { indexOf } = require( 'lodash' )
 const { Controller } = require( 'easy/core' )
 
 /**
@@ -23,26 +22,30 @@ class SkeletonController extends Controller {
      *
      * @param  {Request} request
      * @param  {Response} response
-     * @returns  {Promise}
+     * @returns  {boolean}
      */
-    skeletonExists( request, response ) {
-        return this
-            .getEntityManager()
-            .getRepository( 'skeleton/entity/skeleton.repository', { model: 'skeleton/entity/skeleton' })
-            .find( request.getRouteParameter( 'skeleton_id' ) )
-            .then( skeleton => {
-                if ( skeleton ) {
-                    request.store( 'skeleton', skeleton )
-                    return Promise.resolve()
-                } else {
-                    response.notFound()
-                    return Promise.reject()
-                }
-            })
-            .catch( error => {
-                response.badRequest()
-                return Promise.reject()
-            })
+    async skeletonExists( request, response ) {
+        const em = this.getEntityManager()
+        const Skeleton = em.getModel( 'skeleton/entity/skeleton' )
+        const skeletonRepository = em.getRepository( 'skeleton/entity/skeleton.repository', { model: Skeleton })
+            
+        try {
+            const skeleton = await skeletonRepository.find(  request.getRouteParameter( 'skeleton_id' ), Skeleton )
+
+            if ( !skeleton ) {
+                response.notFound()
+
+                return false
+            }
+
+            request.store( 'skeleton', skeleton )
+
+            return true
+        } catch ( error ) {
+            response.internalServerError()
+
+            return false
+        }
     }
 
     /**
@@ -51,12 +54,16 @@ class SkeletonController extends Controller {
      * @param  {Request} request
      * @param  {Response} response
      */
-    getSkeletons( request, response ) {
-        this.getEntityManager()
-            .getRepository( 'skeleton/entity/skeleton.repository', { model: 'skeleton/entity/skeleton' })
-            .findAll()
-            .then( skeletons => response.ok( skeletons ) )
-            .catch( error => response.internalServerError( error ) )
+    async getSkeletons( request, response ) {
+        const skeletonRepository = this.getEntityManager().getRepository( 'skeleton/entity/skeleton.repository', { model: 'skeleton/entity/skeleton' })
+            
+        try {
+            const skeletons = await skeletonRepository.findAll()
+
+            response.ok( skeletons )
+        } catch ( error ) {
+            response.internalServerError( error )
+        }
     }
 
     /**
@@ -65,16 +72,20 @@ class SkeletonController extends Controller {
      * @param  {Request} request
      * @param  {Response} response
      */
-    createSkeleton( request, response ) {
+    async createSkeleton( request, response ) {
         if ( this.isRequestWellParameterized( request ) ) {
             const em = this.getEntityManager()
             const Skeleton = em.getModel( 'skeleton/entity/skeleton' )
 
-            em
-                .getRepository( 'skeleton/entity/skeleton.repository', { model: Skeleton })
-                .save( new Skeleton(), request.getBody() )
-                .then( skeleton => response.created( skeleton ) )
-                .catch( error => response.internalServerError( error ) )
+            const skeletonRepository = em.getRepository( 'skeleton/entity/skeleton.repository', { model: Skeleton })
+
+            try {
+                const skeleton = await skeletonRepository.save( new Skeleton(), request.getBody() )
+
+                response.created( skeleton )
+            } catch ( error ) {
+                response.internalServerError()
+            }
         } else {
             response.badRequest()
         }
@@ -96,13 +107,17 @@ class SkeletonController extends Controller {
      * @param  {Request} request
      * @param  {Response} response
      */
-    updateSkeleton( request, response ) {
+    async updateSkeleton( request, response ) {
         if ( this.isRequestWellParameterized( request ) ) {
-            this.getEntityManager()
-                .getRepository( 'skeleton/entity/skeleton.repository', { model: 'skeleton/entity/skeleton' })
-                .save( request.retrieve( 'skeleton' ), request.getBody() )
-                .then( skeleton => response.ok( skeleton ) )
-                .catch( error => response.internalServerError( error ) )
+            const skeletonRepository = this.getEntityManager().getRepository( 'skeleton/entity/skeleton.repository', { model: 'skeleton/entity/skeleton' })
+
+            try  {
+                const skeleton = await skeletonRepository.save( request.retrieve( 'skeleton' ), request.getBody() )
+
+                response.ok( skeleton )
+            } catch ( error ) {
+                response.internalServerError()
+            }
         } else {
             response.badRequest()
         }
@@ -114,12 +129,15 @@ class SkeletonController extends Controller {
      * @param  {Request} request
      * @param  {Response} response
      */
-    deleteSkeleton( request, response ) {
-        this.getEntityManager()
-            .getRepository( 'skeleton/entity/skeleton.repository', { model: 'skeleton/entity/skeleton' })
-            .delete( request.retrieve( 'skeleton' ) )
-            .then( () => response.noContent() )
-            .catch( error => response.internalServerError( error ) )
+    async deleteSkeleton( request, response ) {
+        const skeletonRepository = this.getEntityManager().getRepository( 'skeleton/entity/skeleton.repository', { model: 'skeleton/entity/skeleton' })
+
+        try {
+            await skeletonRepository.delete( request.retrieve( 'skeleton' ) )
+            response.noContent()
+        } catch ( error ) {
+            response.internalServerError()
+        }
     }
 }
 

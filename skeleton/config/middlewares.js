@@ -1,6 +1,6 @@
 module.exports = {
     skeletonExists: {
         param: 'skeleton_id',
-        middleware: 'skeleton:skeletonExists'
+        controller: 'skeleton:skeletonExists'
     }
 }

@@ -11,7 +11,7 @@ class Skeleton extends Entity {
      * @returns {Bookshelf.Model}
      */
     build() {
-        return this.orm.Model.extend({
+        return this.database.Model.extend({
             tableName: 'skeletons'
         })
     }
